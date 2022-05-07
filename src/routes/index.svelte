@@ -4,8 +4,12 @@
 
 <script lang="ts">
 	import Counter from '$lib/Counter.svelte';
-	navigator.geolocation.getCurrentPosition((position) => {
-		console.log(position);
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		navigator.geolocation.getCurrentPosition((position) => {
+			console.log(position);
+		});
 	});
 </script>
 
