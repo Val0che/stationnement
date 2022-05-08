@@ -4,17 +4,17 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
-
+	let coordinates: GeolocationPosition;
 	onMount(() => {
 		navigator.geolocation.getCurrentPosition((position) => {
-			console.log(position);
+			coordinates = position;
 		});
 	});
 </script>
 
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<title>Stationnement MTL</title>
+	<meta name="description" content="Bouge ton char avant de prendre un ticket." />
 </svelte:head>
 
 <section>
