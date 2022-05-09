@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { Loader } from '@googlemaps/js-api-loader';
+	import { Loader } from '@googlemaps/js-api-loader/dist/index.min';
 	import FormHours from '$lib/components/FormHours.svelte';
 	import { MAPS_API_KEY } from '$lib/constants';
 
