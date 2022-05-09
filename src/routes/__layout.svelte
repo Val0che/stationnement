@@ -2,6 +2,7 @@
 	import Header from '$lib/header/Header.svelte';
 	import '$lib/css/main.css';
 	import IOsPopup from '$lib/components/iOSPopup.svelte';
+	import { onMount } from 'svelte';
 </script>
 
 <Header />
