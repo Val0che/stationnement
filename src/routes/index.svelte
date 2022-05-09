@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { Loader } from '@googlemaps/js-api-loader/dist/index.min';
+	import { Loader } from 'google-maps';
 	import FormHours from '$lib/components/FormHours.svelte';
 	import { MAPS_API_KEY } from '$lib/constants';
+	import { browser } from '$app/env';
 
 	let streetName = '';
 
-	const loader = new Loader({
-		apiKey: MAPS_API_KEY,
-		version: 'weekly'
-	});
-
 	const handlePositionClick = () => {
+		if (!browser) {
+			return;
+		}
+		const loader = new Loader(MAPS_API_KEY);
 		navigator.geolocation.getCurrentPosition((position) => {
 			const latlng = {
 				lat: position.coords.latitude,
@@ -19,10 +19,13 @@
 			};
 			loader.load().then((google) => {
 				const geocoder = new google.maps.Geocoder();
-				geocoder.geocode({ location: latlng }).then((response) => {
-					console.log(response.results);
-					streetName = response.results[0].address_components[1].long_name;
-				});
+				geocoder
+					.geocode({ location: latlng })
+					.then((response) => {
+						console.log(response.results);
+						streetName = response.results[0].address_components[1].long_name;
+					})
+					.catch((e) => window.alert('Geocoder failed due to: ' + e));
 			});
 		});
 	};
