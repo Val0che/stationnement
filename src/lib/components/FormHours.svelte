@@ -1,34 +1,32 @@
-<script lang="ts">
-	export let streetName = '';
+<script lang="ts" context="module">
+	import type { Readable } from 'svelte/store';
 
-	let formEl: HTMLFormElement = null;
+	type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
-	let leftSide = {
-		day: '',
-		hourStart: '',
-		hourEnd: ''
-	};
-	let rightSide = {
-		day: '',
-		hourStart: '',
-		hourEnd: ''
-	};
-
-	const handleSubmit = async (e: Event) => {
-		const formData = new FormData(formEl);
-		const body = formData;
-		const res = await fetch('/api/saveData.json', {
-			method: 'POST',
-			headers: {
-				'x-form-fetch': 'true',
-				accept: 'application/json'
-			},
-			body
-		});
-	};
+	export interface DefaultFormContext {
+		state: Readable<FormState>;
+		values: Readable<ActionData['values']>;
+		errors: Readable<ActionData['errors']>;
+	}
 </script>
 
-<form bind:this={formEl}>
+<script lang="ts">
+	import DefaultForm from './ui/DefaultForm.svelte';
+	import Spinner from './ui/Spinner.svelte';
+
+	export let streetName = '';
+	export let slug = '';
+</script>
+
+<DefaultForm
+	class="flex h-full flex-col p-2"
+	action="/api/saveData.json"
+	let:state
+	let:errors
+	let:message
+	let:values
+	novalidate
+>
 	<h3 class="text-xl w-full mt-10">Left side</h3>
 	<div class="w-full px-10 mt-4">
 		<label for="day-left">Day:</label>
@@ -36,9 +34,9 @@
 			id="day-left"
 			name="day-left"
 			class="border-slate-700 border-2 pr-10 py-1 ml-8"
-			value={leftSide.day || null}
+			value={values.day_left || null}
 		>
-			<option selected>Monday</option>
+			<option>Monday</option>
 			<option>Tuesday</option>
 			<option>Wednesday</option>
 			<option>Thursday</option>
@@ -56,7 +54,7 @@
 			name="left-start-hour"
 			step="1800"
 			required
-			value={leftSide.hourStart || null}
+			value={values.left_start_hour || null}
 		/>
 	</div>
 	<div class="w-full px-10 mt-8">
@@ -68,7 +66,7 @@
 			name="left-end-hour"
 			step="1800"
 			required
-			value={leftSide.hourEnd || null}
+			value={values.left_end_hour || null}
 		/>
 	</div>
 	<h3 class="text-xl w-full mt-10">Right side</h3>
@@ -77,7 +75,7 @@
 		<select
 			name="day-right"
 			class="border-slate-700 border-2 pr-10 py-1 ml-8"
-			value={rightSide.day || null}
+			value={values.day_right || null}
 		>
 			<option selected>Monday</option>
 			<option>Tuesday</option>
@@ -97,7 +95,7 @@
 			name="right-start-hour"
 			step="1800"
 			required
-			value={rightSide.hourStart || null}
+			value={values.right_start_hour || null}
 		/>
 	</div>
 	<div class="w-full px-10 mt-8">
@@ -109,13 +107,23 @@
 			name="right-end-hour"
 			step="1800"
 			required
-			value={rightSide.hourEnd || null}
+			value={values.right_end_hour || null}
 		/>
 	</div>
 	<input type="hidden" value={streetName} name="street-name" id="street-name" />
+	<input type="hidden" value={slug} name="slug" id="slug" />
 	<button
-		class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8"
 		type="submit"
-		on:click|preventDefault={handleSubmit}>Save</button
+		class="group mt-8 flex w-full items-center rounded-10 bg-black p-4 rounded-full"
 	>
-</form>
+		<p class="flex w-full items-center justify-between text-white">
+			<span>{state === 'submitting' ? 'Submitting' : 'Submit'}</span>
+			{#if state === 'submitting'}
+				<Spinner class="text-purple-800" size="40" />
+			{:else}
+				<span class="text-80 leading-0 transition-transformgroup -hover:translate-x-4">&#8594;</span
+				>
+			{/if}
+		</p>
+	</button>
+</DefaultForm>

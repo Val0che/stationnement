@@ -2,20 +2,8 @@ import { getFirestore } from 'firebase/firestore';
 import { collection, addDoc } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '$lib/constants';
-import { slugify } from '$lib/utils';
 import type { RequestHandler } from '@sveltejs/kit';
 import { makeCookies } from '$lib/api/makeCookies';
-
-interface DbData {
-	streetName: FormDataEntryValue | null;
-	dayLeft: FormDataEntryValue | null;
-	dayRight: FormDataEntryValue | null;
-	leftStartHour: FormDataEntryValue | null;
-	leftEndHour: FormDataEntryValue | null;
-	rightStartHour: FormDataEntryValue | null;
-	rightEndHour: FormDataEntryValue | null;
-	slug?: FormDataEntryValue | null;
-}
 
 export const post: RequestHandler<Record<string, string>> = async (event) => {
 	const { request } = event;
@@ -26,41 +14,47 @@ export const post: RequestHandler<Record<string, string>> = async (event) => {
 	try {
 		const formData = await request.formData();
 
-		let values: DbData = {
-			streetName: formData.get('street-name'),
-			dayLeft: formData.get('day-left'),
-			dayRight: formData.get('day-right'),
-			leftStartHour: formData.get('left-start-hour'),
-			leftEndHour: formData.get('left-end-hour'),
-			rightStartHour: formData.get('right-start-hour'),
-			rightEndHour: formData.get('right-end-hour')
+		const values: DBData = {
+			name: formData.get('street-name'),
+			slug: formData.get('slug'),
+			day_left: formData.get('day-left'),
+			day_right: formData.get('day-right'),
+			left_start_hour: formData.get('left-start-hour'),
+			left_end_hour: formData.get('left-end-hour'),
+			right_start_hour: formData.get('right-start-hour'),
+			right_end_hour: formData.get('right-end-hour')
 		};
 
+		console.log(values);
+
 		if (values) {
-			values = { ...values, slug: slugify(values.streetName as string) };
 			try {
 				const docRef = await addDoc(collection(db, 'streets'), {
-					name: values.streetName,
-					day_left: values.dayLeft,
-					day_right: values.dayRight,
-					left_start_hour: values.leftStartHour,
-					left_end_hour: values.leftEndHour,
-					right_start_hour: values.rightStartHour,
-					right_end_hour: values.rightEndHour,
+					name: values.name,
+					day_left: values.day_left,
+					day_right: values.day_right,
+					left_start_hour: values.left_start_hour,
+					left_end_hour: values.left_end_hour,
+					right_start_hour: values.right_start_hour,
+					right_end_hour: values.right_end_hour,
 					slug: values.slug
 				});
 				console.log('Document written with ID: ', docRef.id);
+
+				const cookies = makeCookies(values.slug);
+				return {
+					status: 200,
+					headers: {
+						'set-cookie': cookies
+					},
+					body: {
+						success: true,
+						message: `Thank you for you submission!`
+					}
+				};
 			} catch (e) {
 				console.error('Error adding document: ', e);
 			}
-
-			const cookies = makeCookies(values.slug);
-			return {
-				status: 200,
-				headers: {
-					'set-cookie': cookies
-				}
-			};
 		}
 	} catch (error) {
 		console.error(error);
