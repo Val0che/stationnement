@@ -6,11 +6,12 @@
 	import { fly } from 'svelte/transition';
 	import { Loader } from '@googlemaps/js-api-loader';
 	import FormHours from '$lib/components/FormHours.svelte';
+	import { MAPS_API_KEY } from '$lib/constants';
 
 	let streetName = '';
 
 	const loader = new Loader({
-		apiKey: 'AIzaSyCXfBvbhKDsb3r_6L142RMZ4Z6-B3JQ05s',
+		apiKey: MAPS_API_KEY,
 		version: 'weekly'
 	});
 

@@ -1,5 +1,8 @@
 import type { CookieSerializeOptions } from 'cookie';
 
+export const MAPS_API_KEY = import.meta.env.VITE_MAPS_API_KEY;
+export const FIREBASE_API_KEY = import.meta.env.VITE_FIREBASE_API_KEY;
+
 // Auth
 export enum Cookies {
 	address = 'smtl-addresses'
@@ -13,7 +16,7 @@ export const BASE_COOKIE_OPTIONS: CookieSerializeOptions = {
 };
 
 export const firebaseConfig = {
-	apiKey: 'AIzaSyCXfBvbhKDsb3r_6L142RMZ4Z6-B3JQ05s',
+	apiKey: FIREBASE_API_KEY,
 	authDomain: 'stationnement-mtl.firebaseapp.com',
 	projectId: 'stationnement-mtl',
 	storageBucket: 'stationnement-mtl.appspot.com',
