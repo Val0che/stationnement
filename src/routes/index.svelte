@@ -10,6 +10,8 @@
 	import { initializeApp } from 'firebase/app';
 	import { firebaseConfig } from '$lib/constants';
 	import { slugify } from '$lib/utils';
+	import Geoloc from '$lib/components/svg/Geoloc.svelte';
+	import Card from '$lib/components/ui/Card.svelte';
 
 	let loading = false;
 	let streetName: string = null;
@@ -67,44 +69,26 @@
 	<meta name="description" content="Bouge ton char avant de prendre un ticket." />
 </svelte:head>
 
-<section class="max-w-md mx-auto text-center">
-	<h1 class="text-3xl text-center">PARKING</h1>
-	<button
-		class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8"
-		on:click={handlePositionClick}>Set my position</button
-	>
-
-	{#if loading}
-		<div transition:fly={{ y: 20, duration: 100 }}>
-			<Spinner class="text-purple-800" />
+<section class="text-center">
+	<div class="relative z-0 bg-purple-light h-full py-32 text-white">
+		<h3 class="text-sm">Hi there! Welcome to</h3>
+		<h1 class="font-extrabold mt-4 text-3xl">MTL Parking</h1>
+	</div>
+	<div class="relative z-1 bg-purple-dark h-full text-white py-12 px-4">
+		<div class="w-full flex flex-nowrap gap-x-4 overflow-x-auto">
+			<Card title="Step 1" content="Set your position using your geolocation" />
+			<Card title="Step 2" content="Enter the cleaning hours of both sides of your street" />
+			<Card title="Step 3" content="Select the side that you're parked on." />
+			<Card
+				title="Step 4"
+				content="Receive a push message 24h and 2h before to remind you to move your car."
+			/>
 		</div>
-	{:else if streetValues}
-		<h1 class="text-3xl text-center">
-			I already know this place! <br /> Please select the side you're parked on.
-		</h1>
-
-		<button
-			class="w-full bg-purple-500 text-white px-4 py-4 rounded-2xl uppercase text-xl mt-8 grid grid-cols-5 items-center"
-		>
-			<p class="text-xl col-span-2">Left Side</p>
-			<p class="text-xl col-span-3">
-				{streetValues.day_left} - From: {streetValues.left_start_hour} to: {streetValues.left_end_hour}
-			</p>
+		<button class="bg-purple rounded-md flex h-14 mt-12 w-full items-center overflow-hidden">
+			<div class="p-2 h-full w-14 flex items-center justify-center text-white bg-purple-light">
+				<Geoloc />
+			</div>
+			<p class="px-4 text-xl uppercase">Set your position</p>
 		</button>
-
-		<button
-			class="w-full bg-purple-500 text-white px-4 py-4 rounded-2xl uppercase text-xl mt-8 grid grid-cols-5 items-center"
-		>
-			<p class="text-xl col-span-2">Right Side</p>
-			<p class="text-xl col-span-3">
-				{streetValues.day_right} - From: {streetValues.right_start_hour} to: {streetValues.right_end_hour}
-			</p>
-		</button>
-	{:else}
-		<div class="space-y-4 text-center text-lg mt-12" transition:fly={{ y: 20, duration: 100 }}>
-			<p class="text-xl">Street name: {streetName}</p>
-		</div>
-		<h1 class="text-xl text-center mt-8">Set the cleaning hours of the street</h1>
-		<FormHours {streetName} {slug} />
-	{/if}
+	</div>
 </section>
