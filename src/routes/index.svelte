@@ -50,7 +50,9 @@
 				}
 			});
 
-			console.log(res);
+			const data = await res.json();
+
+			console.log(data);
 
 			if (!res.ok) {
 				throw new Error(res.statusText);
@@ -65,11 +67,11 @@
 
 	const handleSubmit = async (e: Event) => {
 		e.preventDefault();
-		const submitFn = handlePost;
 		await handlePost();
 	};
 
 	onMount(() => {
+		console.log('mounted');
 		mapLoader = new Loader(MAPS_API_KEY);
 		mapLoader.load().then((google) => {
 			geocoder = new google.maps.Geocoder();

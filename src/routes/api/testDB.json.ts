@@ -29,7 +29,9 @@ export const post = async (event) => {
 
 		return {
 			status: res.errors?.length ? 400 : 200,
-			data: response
+			body: {
+				response
+			}
 		};
 	} catch (error) {
 		// Properly pass down unexpected errors
