@@ -5,77 +5,48 @@
 	import { browser } from '$app/env';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
 	import { onMount } from 'svelte';
-	import { slugify } from '$lib/utils';
+	import Form from '$lib/components/form/Form.svelte';
+	import { getActionData } from '$lib/components/form';
 
 	let loading = false;
 	let streetName: string = null;
 	let mapLoader: Loader = null;
-	let geocoder: google.maps.Geocoder = null;
-	let slug: string = null;
+	let latLng: google.maps.LatLngLiteral = {
+		lat: null,
+		lng: null
+	};
+
+	const action = '/api/testDB.json';
+	const actionData = getActionData(action);
 
 	const handlePositionClick = () => {
 		if (!browser) {
 			return;
 		}
-		loading = true;
 		return new Promise(function (resolve, reject) {
-			navigator.geolocation.getCurrentPosition((position) => {
-				const latlng = {
-					lat: position.coords.latitude,
-					lng: position.coords.longitude
-				};
+			loading = true;
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					if (position) {
+						latLng = {
+							lat: position.coords.latitude,
+							lng: position.coords.longitude
+						};
 
-				geocoder.geocode({ location: latlng }, function (results, status) {
-					if (status == google.maps.GeocoderStatus.OK) {
-						streetName = results[0].address_components[1].long_name;
-						slug = slugify(streetName);
-						resolve(results);
-					} else {
-						reject(status);
-						console.log('Geocode was not successful for the following reason: ' + status);
+						resolve('success');
 					}
 					loading = false;
-				});
-			});
-		});
-	};
-
-	const handlePost = async () => {
-		try {
-			const res = await fetch('/api/testDB.json', {
-				method: 'POST',
-				headers: {
-					'x-form-fetch': 'true',
-					accept: 'application/json'
+				},
+				(error) => {
+					reject(`ERROR(${error.code}): ${error.message}`);
 				}
-			});
-
-			const data = await res.json();
-
-			console.log(data);
-
-			if (!res.ok) {
-				throw new Error(res.statusText);
-			}
-
-			return;
-		} catch (error) {
-			console.error(error);
-			return;
-		}
-	};
-
-	const handleSubmit = async (e: Event) => {
-		e.preventDefault();
-		await handlePost();
+			);
+		});
 	};
 
 	onMount(() => {
-		console.log('mounted');
 		mapLoader = new Loader(MAPS_API_KEY);
-		mapLoader.load().then((google) => {
-			geocoder = new google.maps.Geocoder();
-		});
+		mapLoader.load();
 	});
 </script>
 
@@ -101,10 +72,21 @@
 		</h1>
 	{/if}
 
-	<form on:submit={handleSubmit}>
+	<Form {action}>
+		<input type="hidden" name="lat" value={latLng.lat || null} />
+		<input type="hidden" name="lng" value={latLng.lng || null} />
 		<button
 			class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8"
 			type="submit">TEST DB</button
 		>
-	</form>
+	</Form>
+
+	{#if $actionData}
+		{@const panels = $actionData.response.documents}
+		{#each panels as panel (panel._id)}
+			<button class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8">
+				{panel.DESCRIPTION_RPA}
+			</button>
+		{/each}
+	{/if}
 </section>
