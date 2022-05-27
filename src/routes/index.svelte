@@ -68,7 +68,7 @@
 		</div>
 	{:else}
 		<h1 class="text-3xl text-center">
-			Your street: {streetName}
+			LatLng: {latLng.lat} / {latLng.lng}
 		</h1>
 	{/if}
 
