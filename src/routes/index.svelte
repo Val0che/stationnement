@@ -8,14 +8,15 @@
 	import Form from '$lib/components/form/Form.svelte';
 	import { getActionData } from '$lib/components/form';
 
-	let loading = false;
-	let streetName: string = null;
 	let mapLoader: Loader = null;
 	let latLng: google.maps.LatLngLiteral = {
 		lat: null,
 		lng: null
 	};
 
+	$: state = 'idle';
+
+	$: console.log(state);
 	const action = '/api/testDB.json';
 	const actionData = getActionData(action);
 
@@ -24,7 +25,7 @@
 			return;
 		}
 		return new Promise(function (resolve, reject) {
-			loading = true;
+			state = 'loading';
 			navigator.geolocation.getCurrentPosition(
 				(position) => {
 					if (position) {
@@ -35,7 +36,7 @@
 
 						resolve('success');
 					}
-					loading = false;
+					state = 'sucess';
 				},
 				(error) => {
 					reject(`ERROR(${error.code}): ${error.message}`);
@@ -62,24 +63,23 @@
 		on:click={handlePositionClick}>Set my position</button
 	>
 
-	{#if loading && !streetName}
+	{#if state === 'loading'}
 		<div transition:fly={{ y: 20, duration: 100 }}>
 			<Spinner class="text-purple-800" />
 		</div>
-	{:else}
-		<h1 class="text-3xl text-center">
+	{:else if state === 'sucess'}
+		<h1 class="text-2xl text-center mt-10">
 			LatLng: {latLng.lat} / {latLng.lng}
 		</h1>
+		<Form {action}>
+			<input type="hidden" name="lat" value={latLng.lat} />
+			<input type="hidden" name="lng" value={latLng.lng} />
+			<button
+				class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8"
+				type="submit">Find your panel</button
+			>
+		</Form>
 	{/if}
-
-	<Form {action}>
-		<input type="hidden" name="lat" value={latLng.lat || null} />
-		<input type="hidden" name="lng" value={latLng.lng || null} />
-		<button
-			class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8"
-			type="submit">TEST DB</button
-		>
-	</Form>
 
 	{#if $actionData}
 		{@const panels = $actionData.response.documents}
