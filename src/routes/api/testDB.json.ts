@@ -1,4 +1,5 @@
 import { DB_API_KEY } from '$lib/constants';
+import haversine from 'haversine-distance';
 
 const getFirstFourNumbers = (string: string) => {
 	if (string.includes('-')) {
@@ -6,6 +7,17 @@ const getFirstFourNumbers = (string: string) => {
 	}
 	return string.slice(0, 6);
 };
+
+const formatPanels = (panels: Panel[], latLng) => {
+	return panels
+		.map((panel) => {
+			const panelLatLng = { lat: Number(panel.Latitude), lng: Number(panel.Longitude) };
+			const currentLatLng = { lat: latLng.lat, lng: latLng.lng };
+			return { ...panel, distance: haversine(panelLatLng, currentLatLng) };
+		})
+		.sort((a, b) => a.distance - b.distance);
+};
+
 export const post = async (event) => {
 	const { request } = event;
 
@@ -49,11 +61,10 @@ export const post = async (event) => {
 
 			const response = await res.json();
 
+			const formattedResponse = formatPanels(response?.documents, values);
 			return {
 				status: res.errors?.length ? 400 : 200,
-				body: {
-					response
-				}
+				body: formattedResponse
 			};
 		}
 	} catch (error) {

@@ -29,4 +29,15 @@ declare global {
 		VITE_FIREBASE_API_KEY: string;
 		VITE_MAPS_API_KEY: string;
 	}
+
+	interface Panel {
+		_id: number;
+		POTEAU_ID_POT: string;
+		DESCRIPTION_RPA: string;
+		DESCRIPTION_REP: string;
+		Longitude: string;
+		Latitude: string;
+		NOM_ARROND: string;
+		distance?: number;
+	}
 }

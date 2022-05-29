@@ -41,6 +41,7 @@
 		"axios": "^0.27.2",
 		"cookie": "^0.4.1",
 		"firebase": "^9.8.0",
-		"google-maps": "^4.3.3"
+		"google-maps": "^4.3.3",
+		"haversine-distance": "^1.2.1"
 	}
 }

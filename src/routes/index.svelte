@@ -16,7 +16,7 @@
 
 	$: state = 'idle';
 
-	$: console.log(state);
+	$: console.log($actionData);
 	const action = '/api/testDB.json';
 	const actionData = getActionData(action);
 
@@ -82,7 +82,7 @@
 	{/if}
 
 	{#if $actionData}
-		{@const panels = $actionData.response.documents}
+		{@const panels = $actionData}
 		{#each panels as panel (panel._id)}
 			<button class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8">
 				{panel.DESCRIPTION_RPA}
