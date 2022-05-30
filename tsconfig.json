@@ -29,5 +29,12 @@
 			"$com/*": ["src/lib/components/*"]
 		}
 	},
-	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
+	"include": [
+		"src/**/*.d.ts",
+		"src/**/*.js",
+		"src/**/*.ts",
+		"src/**/*.svelte",
+		"static/service-worker.ts",
+		"static/service-worker.ts"
+	]
 }

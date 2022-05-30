@@ -5,20 +5,11 @@
 	import { browser } from '$app/env';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
 	import { onMount } from 'svelte';
-	import Form from '$lib/components/form/Form.svelte';
-	import { getActionData } from '$lib/components/form';
+	import { goto } from '$app/navigation';
+	import { coordinates } from '$lib/stores/coordinates';
 
 	let mapLoader: Loader = null;
-	let latLng: google.maps.LatLngLiteral = {
-		lat: null,
-		lng: null
-	};
-
 	$: state = 'idle';
-
-	$: console.log($actionData);
-	const action = '/api/testDB.json';
-	const actionData = getActionData(action);
 
 	const handlePositionClick = () => {
 		if (!browser) {
@@ -29,25 +20,42 @@
 			navigator.geolocation.getCurrentPosition(
 				(position) => {
 					if (position) {
-						latLng = {
+						coordinates.set({
 							lat: position.coords.latitude,
 							lng: position.coords.longitude
-						};
-
-						resolve('success');
+						});
+						resolve(goto('/pannels'));
 					}
 					state = 'sucess';
 				},
 				(error) => {
 					reject(`ERROR(${error.code}): ${error.message}`);
+					state = 'error';
 				}
 			);
 		});
 	};
 
-	onMount(() => {
+	let sub;
+	onMount(async () => {
 		mapLoader = new Loader(MAPS_API_KEY);
 		mapLoader.load();
+		if ('serviceWorker' in navigator) {
+			// Service worker supported
+			navigator.serviceWorker.register('/service-worker.js');
+			const reg = await navigator.serviceWorker.ready;
+			sub = await reg.pushManager.getSubscription();
+			if (!sub) {
+				// Fetch VAPID public key
+				const res = await fetch('/api/vapidkeys');
+				const data = await res.text();
+				sub = await reg.pushManager.subscribe({
+					userVisibleOnly: true,
+					applicationServerKey: data
+				});
+			}
+			console.log(sub);
+		}
 	});
 </script>
 
@@ -67,26 +75,7 @@
 		<div transition:fly={{ y: 20, duration: 100 }}>
 			<Spinner class="text-purple-800" />
 		</div>
-	{:else if state === 'sucess'}
-		<h1 class="text-2xl text-center mt-10">
-			LatLng: {latLng.lat} / {latLng.lng}
-		</h1>
-		<Form {action}>
-			<input type="hidden" name="lat" value={latLng.lat} />
-			<input type="hidden" name="lng" value={latLng.lng} />
-			<button
-				class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8"
-				type="submit">Find your panel</button
-			>
-		</Form>
-	{/if}
-
-	{#if $actionData}
-		{@const panels = $actionData}
-		{#each panels as panel (panel._id)}
-			<button class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8">
-				{panel.DESCRIPTION_RPA}
-			</button>
-		{/each}
+	{:else if state === 'error'}
+		<p class="text-red">Error trying to get your geolocation.</p>
 	{/if}
 </section>
