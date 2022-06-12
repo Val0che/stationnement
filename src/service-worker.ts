@@ -1,17 +1,15 @@
 let CACHE_NAME = 'cache-' + Date.now();
 
 self.addEventListener('install', (event) => {
-	console.log('Installed SW');
 	event.waitUntil(
 		caches.open(CACHE_NAME).then((cache) => {
-			return cache.add('/offline.html');
+			console.log(cache);
 		})
 	);
 	self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-	console.log('Activated SW');
 	event.waitUntil(
 		// Loop through the cache
 		caches.keys().then((keys) => {
@@ -27,8 +25,6 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-	console.log('Fetch:', event.request);
-
 	// We only want to send /offline.html when the user is navigating pages,
 	// not when they're requesting something else like CSS files or API requests.
 	if (event.request.mode !== 'navigate') return;
@@ -40,4 +36,20 @@ self.addEventListener('fetch', (event) => {
 			});
 		})
 	);
+});
+
+self.addEventListener('push', (event) => {
+	// Double check the push event
+	if (event.data.text() === 'new-issue') {
+		event.waitUntil(
+			self.registration.showNotification('New issues', {
+				body: 'One or more tracked repositories have new issues or pull requests.'
+			})
+		);
+	}
+});
+
+self.addEventListener('notificationclick', (event) => {
+	event.notification.close();
+	event.waitUntil(clients.openWindow('/'));
 });

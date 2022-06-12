@@ -35,28 +35,6 @@
 			);
 		});
 	};
-
-	let sub;
-	onMount(async () => {
-		mapLoader = new Loader(MAPS_API_KEY);
-		mapLoader.load();
-		if ('serviceWorker' in navigator) {
-			// Service worker supported
-			navigator.serviceWorker.register('/service-worker.js');
-			const reg = await navigator.serviceWorker.ready;
-			sub = await reg.pushManager.getSubscription();
-			if (!sub) {
-				// Fetch VAPID public key
-				const res = await fetch('/api/vapidkeys');
-				const data = await res.text();
-				sub = await reg.pushManager.subscribe({
-					userVisibleOnly: true,
-					applicationServerKey: data
-				});
-			}
-			console.log(sub);
-		}
-	});
 </script>
 
 <svelte:head>

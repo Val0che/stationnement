@@ -5,16 +5,6 @@
 
 	const action = '/api/testDB.json';
 	const actionData = getActionData(action);
-
-	const handlePannelClick = async (event: Event) => {
-		event.preventDefault();
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('/service-worker.js');
-		}
-		const status = await Notification.requestPermission();
-		if (status !== 'granted')
-			alert('Please allow notifications to make sure that the application works.');
-	};
 </script>
 
 <section class="max-w-md mx-auto text-center">
@@ -29,10 +19,7 @@
 	{#if $actionData}
 		{@const panels = $actionData}
 		{#each panels as panel (panel._id)}
-			<button
-				class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8"
-				on:click={handlePannelClick}
-			>
+			<button class="bg-purple-500 text-white px-12 py-4 rounded-2xl uppercase text-xl mt-8">
 				{panel.DESCRIPTION_RPA}
 			</button>
 		{/each}
